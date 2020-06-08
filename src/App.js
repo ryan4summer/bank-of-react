@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router,Switch,Route} from 'react-router-dom';
-import {Home,UserProfile,LogIn} from "./components";
+import {Home,UserProfile,LogIn,Debit} from "./components";
     
 class App extends Component {
 
@@ -8,6 +8,10 @@ class App extends Component {
     super();
     this.state = {
       showHomePage: true,
+      isLogIn: false,
+      isModify: false,
+      credit: 0,
+      debit: 0,  
       accountBalance: 0,
       currentUser: {
         userName: 'bob_loblaw',
@@ -19,23 +23,28 @@ class App extends Component {
   mockLogIn = (logInInfo) => {
     const newUser = {...this.state.currentUser}
     newUser.userName = logInInfo.userName
-    this.setState({currentUser: newUser})
+    this.setState({currentUser: newUser, isLogIn: true})
   };
 
-  render() {
 
-    const HomeComponent = () => (<Home accountBalance={this.state.accountBalance}/>);
+  render() {
+    if(this.state.isLogIn&&this.state.isModify){
+      this.setState({accountBalance: this.state.credit - this.state.debit});
+    }
+    const HomeComponent = () => (<Home accountBalance={this.state.accountBalance} isLogIn={this.state.isLogIn}/>);
     const UserProfileComponent = () => (
-        <UserProfile userName={this.state.currentUser.userName} memberSince={this.state.currentUser.memberSince}  />
+        <UserProfile userName={this.state.currentUser.userName} memberSince={this.state.currentUser.memberSince} accountBalance={this.state.accountBalance} />
     );
     const LogInComponent = () => (<LogIn user={this.state.currentUser} mockLogIn={this.mockLogIn} {...this.props}/>);
+    const DebitComponent = () => (<Debit/>);
 
     return (
         <Router>
           <div>
             <Route exact path="/" render={HomeComponent}/>
-            <Route exact path="/login" render={LogInComponent}/>
             <Route exact path="/userProfile" render={UserProfileComponent}/>
+            <Route exact path="/login" render={LogInComponent}/>
+            <Route exact path="/debit" render={DebitComponent}/>
           </div>
         </Router>
     );
